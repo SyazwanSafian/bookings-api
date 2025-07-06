@@ -11,9 +11,5 @@
             "src": "/(.*)",
             "dest": "index.js"
         }
-    ],
-    "env": {
-        "BOOKINGS_DATABASE": "@bookings-database",
-        "GOOGLEPLACES_API_KEY": "@googleplaces-api-key"
-    }
+    ]
 }
