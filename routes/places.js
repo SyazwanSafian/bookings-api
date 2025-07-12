@@ -4,6 +4,7 @@ const router = express.Router();
 // Get Google Places API key from environment
 const GOOGLE_PLACES_API_KEY = process.env.GOOGLEPLACES_API_KEY;
 
+
 // Route 1: Search for places
 // GET /api/places/search?query=badminton+court+kuala+lumpur
 router.get("/search", async (req, res) => {
@@ -35,7 +36,6 @@ router.get("/search", async (req, res) => {
             },
             body: JSON.stringify(requestBody),
         });
-        console.log("Google API Response Status:", response.status);
 
         // Check if request was successful
         if (!response.ok) {
@@ -43,8 +43,6 @@ router.get("/search", async (req, res) => {
         }
 
         const data = await response.json();
-        console.log("Google data received:", JSON.stringify(data, null, 2));
-        console.log("Places count:", data.places?.length);
 
         // Format response for frontend
         const formattedPlaces =
@@ -54,7 +52,9 @@ router.get("/search", async (req, res) => {
                 address: place.formattedAddress || "Address not available",
                 phone: place.nationalPhoneNumber || "Phone not available",
                 rating: place.rating || 0,
-                photos: place.photos || [],
+                photos: (place.photos || []).map(photo =>
+                    buildPhotoUrl(photo.name)
+                )
             })) || [];
 
         res.json({
@@ -111,11 +111,8 @@ router.get("/details/:place_id", async (req, res) => {
             },
         });
 
-        console.log("Place Details Response Status:", response.status);
-        // Check if request was successful
         if (!response.ok) {
             const errorText = await response.text();
-            console.log("Place Details Error Response:", errorText);
             if (response.status === 404) {
                 return res.status(404).json({ error: "Place not found" });
             }
@@ -136,7 +133,9 @@ router.get("/details/:place_id", async (req, res) => {
             business_status: place.businessStatus || "UNKNOWN",
             price_level: place.priceLevel || null,
             location: place.location || null,
-            photos: place.photos || [],
+            photos: (place.photos || []).map(photo =>
+                buildPhotoUrl(photo.name)
+            ),
         };
 
         res.json({
