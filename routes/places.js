@@ -10,6 +10,8 @@ const GOOGLE_PLACES_API_KEY = process.env.GOOGLEPLACES_API_KEY;
 router.get("/search", async (req, res) => {
     try {
         const { query } = req.query;
+        console.log("Search query received:", query);
+        console.log("Using Google API key:", GOOGLE_PLACES_API_KEY ? '✅ loaded' : '❌ missing');
 
         // Validate query parameter
         if (!query) {
@@ -66,7 +68,7 @@ router.get("/search", async (req, res) => {
         console.error("Search places error:", error);
         res.status(500).json({
             success: false,
-            error: "Failed to search places",
+            error: `Failed to search places: ${error.message}`,
         });
     }
 });
@@ -113,9 +115,7 @@ router.get("/details/:place_id", async (req, res) => {
 
         if (!response.ok) {
             const errorText = await response.text();
-            if (response.status === 404) {
-                return res.status(404).json({ error: "Place not found" });
-            }
+            console.error("Google Places API error response:", errorText);
             throw new Error(`Google API error: ${response.status}`);
         }
 
