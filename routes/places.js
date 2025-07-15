@@ -7,7 +7,7 @@ const GOOGLE_PLACES_API_KEY = process.env.GOOGLEPLACES_API_KEY;
 // Helper to build Google Places photo URL
 function buildPhotoUrl(photoName) {
     if (!photoName) return null;
-    return `https://places.googleapis.com/v1/${photoName}/media?key=${GOOGLE_PLACES_API_KEY}`;
+    return `https://places.googleapis.com/v1/${photoName}/media?key=${GOOGLE_PLACES_API_KEY}&maxWidthPx=400`;
 }
 
 
