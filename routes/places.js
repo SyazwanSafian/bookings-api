@@ -4,14 +4,18 @@ const router = express.Router();
 // Get Google Places API key from environment
 const GOOGLE_PLACES_API_KEY = process.env.GOOGLEPLACES_API_KEY;
 
+// Helper to build Google Places photo URL
+function buildPhotoUrl(photoName) {
+    if (!photoName) return null;
+    return `https://places.googleapis.com/v1/${photoName}/media?key=${GOOGLE_PLACES_API_KEY}`;
+}
+
 
 // Route 1: Search for places
 // GET /api/places/search?query=badminton+court+kuala+lumpur
 router.get("/search", async (req, res) => {
     try {
         const { query } = req.query;
-        console.log("Search query received:", query);
-        console.log("Using Google API key:", GOOGLE_PLACES_API_KEY ? '✅ loaded' : '❌ missing');
 
         // Validate query parameter
         if (!query) {
@@ -68,7 +72,7 @@ router.get("/search", async (req, res) => {
         console.error("Search places error:", error);
         res.status(500).json({
             success: false,
-            error: `Failed to search places: ${error.message}`,
+            error: "Failed to search places",
         });
     }
 });
@@ -115,7 +119,9 @@ router.get("/details/:place_id", async (req, res) => {
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error("Google Places API error response:", errorText);
+            if (response.status === 404) {
+                return res.status(404).json({ error: "Place not found" });
+            }
             throw new Error(`Google API error: ${response.status}`);
         }
 
